@@ -12,7 +12,9 @@ class MySpider(CrawlSpider):
     prefix = "http://www.pornhub.com"
     allowed_domains = ["www.pornhub.com",
                        #"cdnt4b.video.pornhub.phncdn.com",
-                       "cdn2b.video.pornhub.phncdn.com"]
+                       "cdn1.video.pornhub.phncdn.com",
+                       "cdn2b.video.pornhub.phncdn.com",
+                       "[a-z0-9]*.video.pornhub.phncdn.com",]
     start_urls = ["http://www.pornhub.com/channels/povd/videos?o=ra"]
 
     #rules = (
@@ -28,7 +30,8 @@ class MySpider(CrawlSpider):
         item["title"] = hxs.xpath('//title').extract()
         jscode = hxs.xpath('//div[@id="player"]/script[@type="text/javascript"]').extract()
         if not jscode == []:
-            item["file_urls"] = [re.search("var player_quality_240p = '(.*)';", jscode[0]).group(1)]
+            download_url = re.search("var player_quality_240p = '(.*)';", jscode[0]).group(1).split(";")[0]
+            item["file_urls"] = [download_url.replace("'","")]
             jscode = hxs.xpath('//div[@class="video-wrapper"]/div/script[@type="text/javascript"]').extract()
             flash_vars = re.search("var flashvars_[0-9]* = (\{.*\});",jscode[0]).group(1)
             jsonvars = decode(flash_vars)
