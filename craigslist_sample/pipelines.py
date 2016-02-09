@@ -29,6 +29,15 @@ class Mp4Pipeline(FilesPipeline):
     #    for file_url in item['file_urls']:
     #        yield Request(file_url)
 
+    def get_tags_dict(self, tags):
+        tagsdict = {}
+        for entry in tags.split(","):
+            sec = int(entry.split(":")[1])
+            tag = entry.split(":")[0]
+            tagsdict[sec] = tag
+        return tagsdict
+
+
     def item_completed(self, results, item, info):
         file_paths = [x['path'] for ok, x in results if ok]
         if not file_paths:
@@ -36,23 +45,32 @@ class Mp4Pipeline(FilesPipeline):
 
         item['file_paths'] = file_paths
         for path in file_paths:
+
+            #tagsdict = self.get_tags_dict(item['tags']);
+
+
             print path
             path = settings.FILES_STORE +path
             vid = cv2.VideoCapture(path)
             id = settings.FILES_STORE + item["id"][0]
 
-            try:
+            if not os.path.isdir(id):
                 os.mkdir(id)
-            except OSError:
-                print "directory "+id+" already exists"
+
+            #try:
+            #    os.mkdir(id)
+            #except OSError:
+            #    print "directory "+id+" already exists"
 
             success = True
             sec = 0
             success,image = vid.read()
             while success:
-                cv2.imwrite(id+"/frame"+str(sec)+"sec.jpg", image)
+                #tag = tagsdict[max(k for k in tagsdict if k <= sec)]
+                tag = "tag"
+                cv2.imwrite(id+"/frame"+str(sec)+"sec("+tag+").jpg", image)
                 sec = sec + self.interval_sec
-                vid.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
+                vid.set(0,sec*1000) # 0 = CAP_PROP_POS_MSEC
                 success,image = vid.read()
             os.remove(path)
 

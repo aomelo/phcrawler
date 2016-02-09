@@ -14,7 +14,8 @@ class MySpider(CrawlSpider):
                        #"cdnt4b.video.pornhub.phncdn.com",
                        "cdn1.video.pornhub.phncdn.com",
                        "cdn2b.video.pornhub.phncdn.com",
-                       "[a-z0-9]*.video.pornhub.phncdn.com",]
+                       "[a-z|0-9].rncdn3.com",
+                       "[a-z|0-9]*.video.pornhub.phncdn.com",]
     start_urls = ["http://www.pornhub.com/channels/povd/videos?o=ra"]
 
     #rules = (
