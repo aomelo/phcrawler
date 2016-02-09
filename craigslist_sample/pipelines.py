@@ -37,15 +37,20 @@ class Mp4Pipeline(FilesPipeline):
         item['file_paths'] = file_paths
         for path in file_paths:
             print path
-            #path = settings.FILES_STORE +path
+            path = settings.FILES_STORE +path
             vid = cv2.VideoCapture(path)
             id = settings.FILES_STORE + item["id"][0]
-            os.mkdir(id)
+
+            try:
+                os.mkdir(id)
+            except OSError:
+                print "directory "+id+" already exists"
+
             success = True
             sec = 0
             success,image = vid.read()
             while success:
-                cv2.imwrite(id+"/frame"+sec+"sec.jpg", image)
+                cv2.imwrite(id+"/frame"+str(sec)+"sec.jpg", image)
                 sec = sec + self.interval_sec
                 vid.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
                 success,image = vid.read()
