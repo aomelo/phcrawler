@@ -24,7 +24,6 @@ class PhItemPipeline(object):
 
 class Mp4Pipeline(FilesPipeline):
 
-    interval_sec = 5
     #def get_media_requests(self, item, info):
     #    for file_url in item['file_urls']:
     #        yield Request(file_url)
@@ -46,30 +45,30 @@ class Mp4Pipeline(FilesPipeline):
         item['file_paths'] = file_paths
         for path in file_paths:
 
-            #tagsdict = self.get_tags_dict(item['tags']);
+            tagsdict = self.get_tags_dict(item['tags']);
 
 
             print path
             path = settings.FILES_STORE +path
             vid = cv2.VideoCapture(path)
-            id = settings.FILES_STORE + item["id"][0]
+            id = item["id"][0]
 
-            if not os.path.isdir(id):
-                os.mkdir(id)
-
-            #try:
-            #    os.mkdir(id)
-            #except OSError:
-            #    print "directory "+id+" already exists"
+            if not os.path.isdir("None"):
+                os.mkdir("None")
+            for tag in tagsdict.values():
+                if not os.path.isdir(tag):
+                    os.mkdir(tag)
 
             success = True
             sec = 0
             success,image = vid.read()
             while success:
-                #tag = tagsdict[max(k for k in tagsdict if k <= sec)]
-                tag = "tag"
-                cv2.imwrite(id+"/frame"+str(sec)+"sec("+tag+").jpg", image)
-                sec = sec + self.interval_sec
+                tag = "None"
+                index = [k for k in tagsdict if k <= sec]
+                if index:
+                    tag = tagsdict[max(index)]
+                cv2.imwrite(tag+"/vid"+id+"frame"+str(sec)+".jpg", image)
+                sec = sec + settings.SAMPLE_INTERVAL_SEC
                 vid.set(0,sec*1000) # 0 = CAP_PROP_POS_MSEC
                 success,image = vid.read()
             os.remove(path)
