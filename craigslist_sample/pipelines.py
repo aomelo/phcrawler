@@ -44,12 +44,8 @@ class Mp4Pipeline(FilesPipeline):
 
         item['file_paths'] = file_paths
         for path in file_paths:
-
             tagsdict = self.get_tags_dict(item['tags']);
-
-
-            print path
-            path = settings.FILES_STORE +path
+            path = settings.FILES_STORE + path
             vid = cv2.VideoCapture(path)
             id = item["id"][0]
 
@@ -61,22 +57,24 @@ class Mp4Pipeline(FilesPipeline):
                 if not os.path.isdir(tag):
                     os.mkdir(tag)
 
+            print item['duration']
+            duration = int(item['duration'])
+
             success = True
             sec = 0
             success,image = vid.read()
-            while success:
+            while success and sec<= duration:
                 tag = "None"
                 index = [k for k in tagsdict if k <= sec]
                 if index:
                     tag = tagsdict[max(index)]
+
                 cv2.imwrite(settings.FILES_STORE+tag+"/vid"+id+"frame"+str(sec)+".jpg", image)
                 sec = sec + settings.SAMPLE_INTERVAL_SEC
                 vid.set(0,sec*1000) # 0 = CAP_PROP_POS_MSEC
                 success,image = vid.read()
+
             os.remove(path)
-
-
-
         return item
 
     #def process_item(self, item, spider):

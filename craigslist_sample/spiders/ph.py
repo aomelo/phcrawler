@@ -5,7 +5,7 @@ from scrapy.linkextractors import LinkExtractor
 from craigslist_sample.items import PhItem
 import re
 from demjson import decode
-
+import craigslist_sample.settings
 
 class MySpider(CrawlSpider):
     name = "ph"
@@ -16,7 +16,9 @@ class MySpider(CrawlSpider):
                        "cdn2b.video.pornhub.phncdn.com",
                        "[a-z|0-9].rncdn3.com",
                        "[a-z|0-9]*.video.pornhub.phncdn.com",]
-    start_urls = ["http://www.pornhub.com/channels/povd/videos?o=ra"]
+    start_urls = ["http://www.pornhub.com/channels/brazzers/videos?o=da",
+                  #"http://www.pornhub.com/channels/povd/videos?o=ra"
+                  ]
 
     #rules = (
     #    Rule(LinkExtractor(allow=(), restrict_xpaths=('//li[@class="page_next"]',)), callback="parse", follow=True),
@@ -29,18 +31,21 @@ class MySpider(CrawlSpider):
         item["link"] = response.url
         item["id"] = hxs.xpath('//div[@class="video-wrapper"]/div/@data-video-id').extract()
         item["title"] = hxs.xpath('//title').extract()
+        item["duration"] = hxs.xpath('//div/@data-duration').extract()[0]
         jscode = hxs.xpath('//div[@id="player"]/script[@type="text/javascript"]').extract()
         if not jscode == []:
+            #download_url = re.search("var player_quality_"+settings.VIDEO_RESOLUTION+" = '(.*)';", jscode[0]).group(1).split(";")[0]
             download_url = re.search("var player_quality_240p = '(.*)';", jscode[0]).group(1).split(";")[0]
-            item["file_urls"] = [download_url.replace("'","")]
-            jscode = hxs.xpath('//div[@class="video-wrapper"]/div/script[@type="text/javascript"]').extract()
-            flash_vars = re.search("var flashvars_[0-9]* = (\{.*\});",jscode[0]).group(1)
-            jsonvars = decode(flash_vars)
-            if "actionTags" in jsonvars:
-                tags = jsonvars["actionTags"]
-                if tags:
-                    item["tags"] = tags
-                    yield item
+            if download_url:
+                item["file_urls"] = [download_url.replace("'","")]
+                jscode = hxs.xpath('//div[@class="video-wrapper"]/div/script[@type="text/javascript"]').extract()
+                flash_vars = re.search("var flashvars_[0-9]* = (\{.*\});",jscode[0]).group(1)
+                jsonvars = decode(flash_vars)
+                if "actionTags" in jsonvars:
+                    tags = jsonvars["actionTags"]
+                    if tags:
+                        item["tags"] = tags
+                        yield item
 
     def parse(self, response):
         hxs = Selector(response)

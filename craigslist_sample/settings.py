@@ -17,6 +17,6 @@ ITEM_PIPELINES = {'craigslist_sample.pipelines.Mp4Pipeline': 1,
 FILES_STORE = './data/'
 FILES_EXPIRES = 7
 SAMPLE_INTERVAL_SEC = 5
-
+VIDEO_RESOLUTION = '240p' # 240p,480p,720p,1080p
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'craigslist_sample (+http://www.yourdomain.com)'

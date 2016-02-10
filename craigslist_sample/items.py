@@ -13,6 +13,7 @@ class PhItem(Item):
     title = Field()
     link = Field()
     id = Field()
+    duration = Field()
     file_urls = Field()
     files = Field()
     file_paths = Field()
