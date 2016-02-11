@@ -73,7 +73,8 @@ class Mp4Pipeline(FilesPipeline):
                 sec = sec + settings.SAMPLE_INTERVAL_SEC
                 vid.set(0,sec*1000) # 0 = CAP_PROP_POS_MSEC
                 success,image = vid.read()
-
+                
+            vid.release()
             os.remove(path)
         return item
 

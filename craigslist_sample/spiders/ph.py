@@ -11,7 +11,7 @@ class MySpider(CrawlSpider):
     name = "ph"
     prefix = "http://www.pornhub.com"
     allowed_domains = ["www.pornhub.com",
-                       #"cdnt4b.video.pornhub.phncdn.com",
+                       "cdnt4b.video.pornhub.phncdn.com",
                        "cdn1.video.pornhub.phncdn.com",
                        "cdn2b.video.pornhub.phncdn.com",
                        "[a-z|0-9].rncdn3.com",
