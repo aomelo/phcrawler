@@ -8,27 +8,30 @@ Project: https://github.com/aymericdamien/TensorFlow-Examples/
 
 # Import MINST data
 import input_data
-#mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
-mnist = input_data.read_data_sets_ph("../../../imrec/notMNIST.pickle")
-
 import tensorflow as tf
+
+#mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+#mnist = input_data.read_data_sets_ph("../../../imrec/notMNIST.pickle")
+mnist = input_data.read_data_sets_ph("ph.h5")
+
+image_height = 240
+image_width = 424
+image_depth = 3
+
+
 
 # Parameters
 learning_rate = 0.001
-training_epochs = 15
+training_epochs = 30
 batch_size = 100
 display_step = 1
 
 # Network Parameters
 n_hidden_1 = 256 # 1st layer num features
 n_hidden_2 = 256 # 2nd layer num features
-#image_height = 28
-#image_width = 28
-image_height = 240
-image_width = 424
-n_input = image_height*image_width # MNIST data input (img shape: 28*28)
+n_input = image_height*image_width*image_depth # MNIST data input (img shape: 28*28)
 #n_classes = 10 # MNIST total classes (0-9 digits)
-n_classes = 15 # MNIST total classes (0-9 digits)
+n_classes = 8 # MNIST total classes (0-9 digits)
 
 # tf Graph input
 x = tf.placeholder("float", [None, n_input])

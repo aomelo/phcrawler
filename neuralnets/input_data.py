@@ -5,6 +5,7 @@ import os
 import urllib
 import cPickle as pickle
 import numpy
+import h5py
 SOURCE_URL = 'http://yann.lecun.com/exdb/mnist/'
 
 
@@ -80,11 +81,12 @@ class DataSet(object):
       self._num_examples = images.shape[0]
       # Convert shape from [num examples, rows, columns, depth]
       # to [num examples, rows*columns] (assuming depth == 1)
+      print(images.shape)
       if len(images.shape)==4:
-        assert images.shape[3] == 1
-
-      images = images.reshape(images.shape[0],
-                              images.shape[1] * images.shape[2])
+        assert images.shape[3]== 1 or images.shape[3]==3
+        images = numpy.reshape(images,(images.shape[0],images.shape[1] * images.shape[2] * images.shape[3]))
+      else:
+        images = numpy.reshape(images, (images.shape[0],images.shape[1] * images.shape[2]))
       # Convert from [0, 255] -> [0.0, 1.0].
       images = images.astype(numpy.float32)
       images = numpy.multiply(images, 1.0 / 255.0)
@@ -162,27 +164,25 @@ def reshape_labels(labels, n_labels):
  return (numpy.arange(n_labels) == labels[:,None]).astype(numpy.float32)
 
 def read_data_sets_ph(filename):
-  with open(filename, 'rb') as f:
-    data = pickle.load(f)
-  train_dataset = data['train_dataset']
-  train_labels = data['train_labels']
-  valid_dataset = data['valid_dataset']
-  valid_labels = data['valid_labels']
-  test_dataset = data['test_dataset']
-  test_labels = data['test_labels']
+  with h5py.File(filename,'r') as hf:
+    train_dataset = hf.get('train_dataset')
+    train_labels = numpy.array(hf.get('train_labels'))
+    valid_dataset = hf.get('valid_dataset')
+    valid_labels = numpy.array(hf.get('valid_labels'))
+    test_dataset = hf.get('test_dataset')
+    test_labels = numpy.array(hf.get('test_labels'))
 
-  n_labels = 15
-  train_labels = reshape_labels(train_labels,n_labels)
-  test_labels = reshape_labels(test_labels,n_labels)
-  valid_labels = reshape_labels(valid_labels,n_labels)
+    n_labels = 8
+    train_labels = reshape_labels(train_labels,n_labels)
+    test_labels = reshape_labels(test_labels,n_labels)
+    valid_labels = reshape_labels(valid_labels,n_labels)
 
-  del data  # hint to help gc free up memory
-  print('Training set', train_dataset.shape, train_labels.shape)
-  print('Validation set', valid_dataset.shape, valid_labels.shape)
-  print('Test set', test_dataset.shape, test_labels.shape)
+    print('Training set', train_dataset.shape, train_labels.shape)
+    print('Validation set', valid_dataset.shape, valid_labels.shape)
+    print('Test set', test_dataset.shape, test_labels.shape)
 
-  data_sets = DataSets()
-  data_sets.train = DataSet(train_dataset, train_labels)
-  data_sets.validation = DataSet(valid_dataset, valid_labels)
-  data_sets.test = DataSet(test_dataset, test_labels)
-  return data_sets
+    data_sets = DataSets()
+    data_sets.train = DataSet(train_dataset, train_labels)
+    data_sets.validation = DataSet(valid_dataset, valid_labels)
+    data_sets.test = DataSet(test_dataset, test_labels)
+    return data_sets

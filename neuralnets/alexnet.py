@@ -21,12 +21,11 @@ batch_size = 64
 display_step = 1
 #image_height = 28
 #image_width = 28
-image_height = 240
-image_width = 424
+
 
 # Network Parameters
 #n_classes = 10 # MNIST total classes (0-9 digits)
-n_classes = 15 # MNIST total classes (0-9 digits)
+n_classes = 8 # MNIST total classes (0-9 digits)
 dropout = 0.8 # Dropout, probability to keep units
 
 
@@ -42,11 +41,17 @@ def crop(images,image_height,image_width):
 
 
 #mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
-mnist = input_data.read_data_sets_ph("../../../imrec/notMNIST.pickle")
+#mnist = input_data.read_data_sets_ph("../../../imrec/notMNIST.pickle")
+mnist = input_data.read_data_sets_ph("ph.h5")
 
-train_images = np.reshape(mnist.train.images, (-1,image_height,image_width,1))
-test_images = np.reshape(mnist.test.images, (-1,image_height,image_width,1))
-valid_images = np.reshape(mnist.validation.images, (-1,image_height,image_width,1))
+image_height = 240
+image_width = 424
+image_depth = 3
+
+print(mnist.train.images.shape)
+train_images = np.reshape(mnist.train.images, (-1,image_height,image_width,image_depth))
+test_images = np.reshape(mnist.test.images, (-1,image_height,image_width,image_depth))
+valid_images = np.reshape(mnist.validation.images, (-1,image_height,image_width,image_depth))
 train_labels = mnist.train.labels
 test_labels = mnist.test.labels
 valid_labels = mnist.validation.labels
@@ -63,7 +68,7 @@ mnist.train = DataSet(train_images, train_labels)
 mnist.validation = DataSet(valid_images, valid_labels)
 mnist.test = DataSet(test_images, test_labels)
 
-n_input = image_height*image_width  # MNIST data input (img shape: 28*28)
+n_input = image_height*image_width*image_depth  # MNIST data input (img shape: 28*28)
 
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, n_input])
@@ -82,7 +87,7 @@ def norm(name, l_input, lsize=4):
 
 def alex_net(_X, _weights, _biases, _dropout):
     # Reshape input picture
-    _X = tf.reshape(_X, shape=[-1, image_height, image_width, 1])
+    _X = tf.reshape(_X, shape=[-1, image_height, image_width, image_depth])
 
     # Convolution Layer
     conv1 = conv2d('conv1', _X, _weights['wc1'], _biases['bc1'])
@@ -111,10 +116,6 @@ def alex_net(_X, _weights, _biases, _dropout):
     # Apply Dropout
     norm3 = tf.nn.dropout(norm3, _dropout)
 
-    print('pool3' + str(pool3.get_shape().as_list()))
-    print('conv3' + str(conv3.get_shape().as_list()))
-    print('norm3' + str(conv3.get_shape().as_list()))
-    print('wd1' + str(_weights['wd1'].get_shape().as_list()))
     # Fully connected layer
     dense1 = tf.reshape(norm3, [-1, _weights['wd1'].get_shape().as_list()[0]]) # Reshape conv3 output to fit dense layer input
     dense1 = tf.nn.relu(tf.matmul(dense1, _weights['wd1']) + _biases['bd1'], name='fc1') # Relu activation
@@ -129,7 +130,7 @@ def alex_net(_X, _weights, _biases, _dropout):
 
 # Store layers weight & bias
 weights = {
-    'wc1': tf.Variable(tf.random_normal([3, 3, 1, 64])),
+    'wc1': tf.Variable(tf.random_normal([3, 3, image_depth, 64])),
     'wc2': tf.Variable(tf.random_normal([3, 3, 64, 128])),
     'wc3': tf.Variable(tf.random_normal([3, 3, 128, 256])),
     'wd1': tf.Variable(tf.random_normal([image_height/8*image_width/8*256, 1024])),

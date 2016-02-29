@@ -10,7 +10,8 @@ Project: https://github.com/aymericdamien/TensorFlow-Examples/
 # Import MINST data
 import input_data
 #mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
-mnist = input_data.read_data_sets_ph("../../../imrec/notMNIST.pickle")
+#mnist = input_data.read_data_sets_ph("../../../imrec/notMNIST.pickle")
+mnist = input_data.read_data_sets_ph("ph.pickle")
 
 import tensorflow as tf
 from tensorflow.python.ops.constant_op import constant
@@ -36,7 +37,7 @@ n_steps = 424 # timesteps
 
 n_hidden = 256 # hidden layer num of features
 #n_classes = 10 # MNIST total classes (0-9 digits)
-n_classes = 15 # MNIST total classes (0-9 digits)
+n_classes = 14 # MNIST total classes (0-9 digits)
 
 # tf Graph input
 x = tf.placeholder("float", [None, n_steps, n_input])
